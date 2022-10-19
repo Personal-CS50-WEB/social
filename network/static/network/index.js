@@ -32,7 +32,6 @@ function submit_post(){
         console.log(result);
         var element = add_post_to_div(result.post);
         document.querySelector('#all-posts').before(element); 
-        
         document.querySelector('#text').value = "";
                      
         }  
