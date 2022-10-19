@@ -1,0 +1,21 @@
+div {
+    margin-top:5px;
+}
+
+/* animate new box */
+.new-card {
+	transform-origin: 50% 0;
+	animation: append-animate .3s linear;
+    
+}
+
+@keyframes append-animate {
+	from {
+		transform: scaleY(0);
+		opacity: 0;
+	}
+	to {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}

@@ -1,0 +1,32 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div id="new-post" class="card" >
+    <div class="card-body">
+        <h3 class="card-title">New post</h3>
+            <form id="new-post-form" class="form">
+                <div class="form-group">
+                <textarea class="form-control" id="text" placeholder="Write new post"></textarea>
+            </div>
+                <input type="submit" id="submit" class="btn btn-primary" value="Post"/>
+            </form>
+    </div>
+</div>
+<div></div>
+<div id="all-posts">
+</div>
+
+<div id="profile-page">
+    TODO2
+    </div>
+
+    <div id="following">
+        TODO3
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}
