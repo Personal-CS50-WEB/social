@@ -31,9 +31,9 @@ function submit_post(){
         // add new post (first) to posts
         console.log(result);
         var element = add_post_to_div(result.post);
-        document.querySelector('#all-posts').before(element); 
-        document.querySelector('#text').value = "";
-                     
+        document.querySelector(".new-card").parentNode.insertBefore(element, document.querySelector(".new-card"));
+        // reset the text area 
+        document.querySelector('#text').value = "";           
         }  
        
     })
@@ -102,4 +102,5 @@ function add_post_to_div(post){
         <div class="card-footer text-muted">${post.likes} Likes</div>
         `;
         return element;
+
 }
