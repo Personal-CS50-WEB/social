@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-from .models import Post, User, Like
+from .models import Following, Post, User, Like
 
 
 def index(request):
@@ -94,11 +94,58 @@ def new_post(request):
     return JsonResponse({"message": "Post added successfully.", "post":post.serialize()}, status=201, safe=False)
 
 
-def all_posts(request):
+def get_posts(request, user_id='null'):
     '''get all posts from all users'''
-
-    #get posts from db
-    posts =Post.objects.all()
+    if user_id != 'null':
+        #get user's posts from db
+        posts = Post.objects.filter(user_id=user_id)
+                
+    else:
+        #get all posts from db
+        posts = Post.objects.all()
     # Return posts in reverse chronologial order
-    posts =posts.order_by("-timestamp").all()
+    posts = posts.order_by("-timestamp").all()
+    
     return JsonResponse([post.serialize() for post in posts], safe=False)
+
+
+def profile(request, user_id):
+    '''get user's following, followers'''
+
+    user = User.objects.get(pk=user_id)
+    followingCount = Following.objects.filter(user_id=user_id).count()
+    followerCount =  Following.objects.filter(follow_id=user_id).count()
+    
+    return JsonResponse({
+        "user": user.serialize(),
+        "followerCount":followerCount, 
+        "followingCount": followingCount
+        },
+        safe=False)
+
+
+def is_following(request, user_id):
+    ''' function to check if user is following another'''
+
+    try:
+        Following.objects.get(follow_id=user_id,user_id=request.user.id)
+    except Following.DoesNotExist:
+        return JsonResponse({"message": "not a follower."}, status=200)
+
+    return JsonResponse({"message": "allready a follower."}, status=200)
+        
+
+@login_required      
+def get_following_posts(request):
+
+    '''function gets followings's posts'''
+
+    # get user's followeing ids
+    followings = Following.objects.filter(user_id=request.user.id).values_list('follow_id', flat=True)
+
+    # followings posts
+    posts = Post.objects.filter(user_id__in=followings).order_by("-timestamp")
+
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+    
+
