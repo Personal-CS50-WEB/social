@@ -1,11 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
+    
+    const userid =  document.querySelector('#userId').value;
     // when user click on any link on nav bar
-    document.querySelector('#following').addEventListener('click', () => load_following);
     document.querySelector('#new-post-form').onsubmit = submit_post;
-
+    document.querySelector('#allPosts').onclick = all_posts;
+    document.querySelector('#userFollowing').onclick = function(){
+        load_following(userid);
+        return false;
+    };
+    document.querySelector('#username').onclick = function(){
+        profile_page(userid);
+        return false;
+    };
+    
     // By default, load all
     all_posts();
-    
 });
 
 function submit_post(){
@@ -31,9 +40,17 @@ function submit_post(){
         // add new post (first) to posts
         console.log(result);
         var element = add_post_to_div(result.post);
-        document.querySelector(".new-card").parentNode.insertBefore(element, document.querySelector(".new-card"));
+        // if first post
+        if (document.querySelector("#all-posts").textContent.trim() === '')  {
+           
+            document.querySelector('#all-posts').append(element);  
+        }    
+        // if not first post: new post should dispaly first
+        else {
+            document.querySelector(".new-card").parentNode.insertBefore(element, document.querySelector(".new-card"));
+        }
         // reset the text area 
-        document.querySelector('#text').value = "";           
+        document.querySelector('#text').value = ""; 
         }  
        
     })
@@ -47,7 +64,6 @@ function submit_post(){
 
 function all_posts() {
     // display all posts and new post form 
-    document.querySelector('#following').style.display = 'none';
     document.querySelector('#new-post').style.display = 'block';
     document.querySelector('#all-posts').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
@@ -78,16 +94,28 @@ function all_posts() {
         })
 
     })
-  
+    return false;
 }
 
 function load_following() {
-    document.querySelector('#following').style.display = 'block';
+   
     document.querySelector('#new-post').style.display = 'none';
-    document.querySelector('#all-posts').style.display = 'none';
+    document.querySelector('#all-posts').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
+    document.querySelector('#all-posts').innerHTML = '';
 
+    fetch('/get_following_posts')
+    .then(response => response.json())
+    .then(posts => {
+        console.log(posts);
+        posts.forEach(post => {
+            // create div for each post
+            var element = add_post_to_div(post);
+            document.querySelector('#all-posts').append(element);  
+        })
 
+    
+})
 }
 
 function add_post_to_div(post){
@@ -95,12 +123,64 @@ function add_post_to_div(post){
     const element = document.createElement('div');
     element.classList.add('card', 'new-card');
     element.innerHTML = `<div class="card-body">
-        <h5 class="card-title">${post.user}</h5>
+        <h5 class="btn btn-outline-info" onclick="profile_page(${post.userId});"><strong>${post.user}</strong></h5>
         <p class="card-text">${post.text}</p>
         </div>
         <footer class="blockquote-footer">${post.timestamp}</footer>
         <div class="card-footer text-muted">${post.likes} Likes</div>
         `;
         return element;
+}
 
+function profile_page(id) {
+
+    // display only profile information and posts.
+    document.querySelector('#new-post').style.display = 'none';
+    document.querySelector('#all-posts').style.display = 'block';
+    document.querySelector('#profile-page').style.display = 'block';
+    document.querySelector('#all-posts').innerHTML = '';
+    
+    // diable follow/unfollow buttons by defult 
+    document.querySelector('#follow').style.display = 'none';
+    document.querySelector('#unfollow').style.display = 'none';
+
+       // get followers and following numbers
+    fetch(`/profile/${id}`)
+    .then(response => response.json())
+    .then(user => {
+    //
+      console.log(user);
+      document.querySelector('#name').innerHTML =`<strong>${user.user.username}</strong>`;
+      document.querySelector('#numberOfFollowing').innerHTML =`${user.followingCount}`;
+      document.querySelector('#numberOfFollowers').innerHTML =`${user.followerCount}`;
+ 
+    })
+    //if user is not the profile owner : check if user is a follower or not
+    if (id != document.querySelector('#userId').value){
+        fetch(`/is_following/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.message ==="not a follower.") {
+                document.querySelector('#follow').style.display = 'block';
+            }
+            else {
+                document.querySelector('#unfollow').style.display = 'block';
+            }
+        })
+
+    }
+    
+    // get user's posts by user id
+    fetch(`/posts/${id}`)
+    .then(response => response.json())
+    .then(posts => {
+        console.log(posts);
+        posts.forEach(post => {
+            // create div for each post
+            var element = add_post_to_div(post);
+            document.querySelector('#all-posts').append(element);  
+        })
+    })
+    return false;
 }

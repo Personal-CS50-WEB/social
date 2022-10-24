@@ -2,29 +2,58 @@
 {% load static %}
 
 {% block body %}
-
-<div id="new-post" class="card" >
+<div id="new-post" class="card text-white bg-info mb-" >
     <div class="card-body">
         <h3 class="card-title">New post</h3>
             <form id="new-post-form" class="form">
                 <div class="form-group">
                 <textarea class="form-control" id="text" placeholder="Write new post"></textarea>
             </div>
-                <input type="submit" id="submit" class="btn btn-primary" value="Post"/>
+                <input type="submit" id="submit" class="btn btn-light" value="Post"/>
             </form>
     </div>
 </div>
 <div></div>
+
+<div id="profile-page">
+        
+    <div class="card  text-white bg-info mb-">
+        <div class="card-body p-4">                
+            <div class="flex-grow-1 ms-3">
+                <h5 class="mb-1" id="name"></h5>
+                <div class="card" style="width: 18rem;"> 
+                <div class="d-flex justify-content-start rounded-3 p-2 mb-2">
+                    <div>
+                        
+                        <p class="small text-muted mb-1">Following</p>
+                        <p class="small text-muted mb-1" id="numberOfFollowing"></p>
+                    </div>
+                    <div class="px-3">
+                        <p class="small text-muted mb-1">Followers</p>
+                        <p class="small text-muted mb-1" id="numberOfFollowers"></p>
+                    </div>
+                       
+                </div>
+            </div>
+                <div class="d-flex pt-1" style="width: 18rem;">
+                            
+                    <button id="follow"type="button" class="btn btn-light flex-grow-1">Follow</button>
+                    <button id="unfollow" type="button" class="btn btn-light flex-grow-1">Unfollow</button>
+                </div>
+            </div>
+                  
+        </div>
+    </div>
+    <div id="userPosts">
+
+
+    </div>            
+    
+</div>
+
 <div id="all-posts">
 </div>
 
-<div id="profile-page">
-    TODO2
-    </div>
-
-    <div id="following">
-        TODO3
-    </div>
 {% endblock %}
 
 {% block script %}

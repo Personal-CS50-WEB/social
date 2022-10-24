@@ -19,3 +19,10 @@ div {
 		opacity: 1;
 	}
 }
+.d-flex justify-content-start rounded-3 p-2 mb-2{
+	background-color: #efefef;
+}
+
+strong {
+    text-transform:capitalize;
+}
