@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#new-post-form').onsubmit = submit_post;
     document.querySelector('#allPosts').onclick = all_posts;
     document.querySelector('#userFollowing').onclick = function(){
-        load_following(userid);
+        load_following();
         return false;
     };
     document.querySelector('#username').onclick = function(){
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function submit_post(){
     
     var body = document.querySelector('#text').value;
+    // call api to submit new entry
     fetch('/network', {
         method: 'POST',
         body: JSON.stringify({
@@ -62,11 +63,13 @@ function submit_post(){
         return false;
     }
 
-function all_posts() {
+function all_posts(num=1) {
     // display all posts and new post form 
     document.querySelector('#new-post').style.display = 'block';
     document.querySelector('#all-posts').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
+    document.querySelector('#all-posts').innerHTML = '';
+    document.querySelector('#page-number').innerHTML = '';
 
     // Clear out composition fields
     let new_text = document.querySelector('#text');
@@ -83,39 +86,20 @@ function all_posts() {
         }
     }
     // call api to get posts
-    fetch('/posts')
-    .then(response => response.json())
-    .then(posts => {
-        console.log(posts);
-        posts.forEach(post => {
-            // create div for each post
-            var element = add_post_to_div(post);
-            document.querySelector('#all-posts').append(element);  
-        })
-
-    })
+    fetch_posts ('allposts', num)
     return false;
 }
 
-function load_following() {
+function load_following(num=1) {
    
+    // dispaly only posts view.
     document.querySelector('#new-post').style.display = 'none';
     document.querySelector('#all-posts').style.display = 'block';
     document.querySelector('#profile-page').style.display = 'none';
     document.querySelector('#all-posts').innerHTML = '';
-
-    fetch('/get_following_posts')
-    .then(response => response.json())
-    .then(posts => {
-        console.log(posts);
-        posts.forEach(post => {
-            // create div for each post
-            var element = add_post_to_div(post);
-            document.querySelector('#all-posts').append(element);  
-        })
-
-    
-})
+    // call fetch posts function to get followings posts
+    fetch_posts('userFollowing', num);
+    return false;
 }
 
 function add_post_to_div(post){
@@ -132,7 +116,7 @@ function add_post_to_div(post){
         return element;
 }
 
-function profile_page(id) {
+function profile_page(id, num=1) {
 
     // display only profile information and posts.
     document.querySelector('#new-post').style.display = 'none';
@@ -140,11 +124,11 @@ function profile_page(id) {
     document.querySelector('#profile-page').style.display = 'block';
     document.querySelector('#all-posts').innerHTML = '';
     
-    // diable follow/unfollow buttons by defult 
+    // disable follow/unfollow buttons by defult 
     document.querySelector('#follow').style.display = 'none';
     document.querySelector('#unfollow').style.display = 'none';
 
-       // get followers and following numbers
+    // get followers and following numbers
     fetch(`/profile/${id}`)
     .then(response => response.json())
     .then(user => {
@@ -163,24 +147,127 @@ function profile_page(id) {
             console.log(data);
             if (data.message ==="not a follower.") {
                 document.querySelector('#follow').style.display = 'block';
+                document.querySelector('#follow').onclick = function(){
+                    add_remove_follower(id);
+                }
             }
             else {
                 document.querySelector('#unfollow').style.display = 'block';
+                document.querySelector('#unfollow').onclick = function(){
+                    add_remove_follower(id);
+                }
             }
         })
 
     }
     
     // get user's posts by user id
-    fetch(`/posts/${id}`)
-    .then(response => response.json())
-    .then(posts => {
-        console.log(posts);
-        posts.forEach(post => {
+    fetch_posts('profile', num, id);
+
+    return false;
+}
+
+function page_paginator(page, view, id) {
+
+    const paginator = document.createElement('div');
+    paginator.classList.add("pagination");
+
+    // if the page has previous page create button unable user to visit it
+    if (page.has_previous ) {
+        let previous = document.createElement('li');
+        previous.innerHTML = `<a class="page-link" onclick="fetch_posts('${view}',this.id,${id});return false;" id="${page.previous_page_number}" href="#" aria-label="previous">&laquo;Previous</span></a>`
+        previous.classList.add("page-item");
+        document.querySelector('#page-number').append(previous);    
+    }
+    
+    // if the page has next page create button unable user to visit it
+    if (page.has_next) {      
+        let next = document.createElement('li');
+        next.innerHTML = `<a class="page-link" onclick="fetch_posts('${view}',this.id,${id});return false;" id="${page.next_page_number}"href="#" aria-label="Next">Next&raquo;</span></a>`
+        next.classList.add("page-item");
+        document.querySelector('#page-number').append(next);  
+    }
+
+
+}
+
+function fetch_posts (view, num, id=null){
+    // reset innerhtml 
+    document.querySelector('#all-posts').innerHTML = '';
+    document.querySelector('#page-number').innerHTML = '';
+
+    // if user want to see followings posts
+    if (view == 'userFollowing') {
+        // call get_following_posts api
+        fetch(`/get_following_posts?page=${num}`)
+        .then(response => response.json())
+        .then(posts => {
+            console.log(posts);
+            // send posts in result to paginator function
+            page_paginator(posts.page, 'userFollowing');
+            
+            posts.allposts.forEach(post => {
             // create div for each post
             var element = add_post_to_div(post);
             document.querySelector('#all-posts').append(element);  
+            })
+
+    
         })
-    })
+        
+    }
+    // if user on profile view
+    else if (view == 'profile') {
+        // get user's posts by user id
+        fetch(`/posts/${id}?page=${num}`)
+        .then(response => response.json())
+        .then(posts => {
+            console.log(posts);
+            // send posts in result to paginator function
+            page_paginator(posts.page, 'profile', id);
+            
+            posts.allposts.forEach(post => {
+                // create div for each post
+                var element = add_post_to_div(post);
+                document.querySelector('#all-posts').append(element);  
+            })
+        })
+    }
+    // if user on all posts view
+    else if (view == 'allposts'){
+        // call api to get all posts
+        fetch(`/posts?page=${num}`)
+        .then(response => response.json())
+        .then(page => {
+            console.log(page);
+            // send posts in result to paginator function
+            page_paginator(page.page, 'allposts');
+            
+            page.allposts.forEach(post => {
+                // create div for each post
+                var element = add_post_to_div(post);
+                document.querySelector('#all-posts').append(element);  
+            })
+
+        })
+    }
     return false;
+
+}
+
+function add_remove_follower(id) {
+    // call api to change the following state
+    fetch(`/add_remove_follower/${id}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(result => {
+          console.log(result);
+          // return to profile page
+          profile_page(id);
+        
+      })
+      .catch(error => {
+        console.log('Error:', error); 
+    });
 }

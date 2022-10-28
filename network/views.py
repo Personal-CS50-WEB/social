@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Following, Post, User, Like
 
@@ -16,6 +17,7 @@ def index(request):
     # Authenticated users view their inbox
     if request.user.is_authenticated:
         return render(request, "network/index.html")
+
 
     # Everyone else is prompted to sign in
     else:
@@ -96,6 +98,8 @@ def new_post(request):
 
 def get_posts(request, user_id='null'):
     '''get all posts from all users'''
+
+    # if user looks at one user posts
     if user_id != 'null':
         #get user's posts from db
         posts = Post.objects.filter(user_id=user_id)
@@ -105,8 +109,8 @@ def get_posts(request, user_id='null'):
         posts = Post.objects.all()
     # Return posts in reverse chronologial order
     posts = posts.order_by("-timestamp").all()
-    
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+    return paginate(request, posts)
 
 
 def profile(request, user_id):
@@ -146,6 +150,68 @@ def get_following_posts(request):
     # followings posts
     posts = Post.objects.filter(user_id__in=followings).order_by("-timestamp")
 
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    return paginate(request, posts)
     
 
+def paginate(request, posts):
+    
+    paginator = Paginator(posts, 10, orphans=1)
+
+    # get page number
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        # if page is not an integer, deliver the first page
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # if the page is out of range, deliver the last page
+        page_obj = paginator.page(paginator.num_pages)
+    
+    # get the previous page
+    try:
+        previous_page_number = page_obj.previous_page_number()
+    except EmptyPage:
+        previous_page_number = 1
+
+    # get next page
+    try:
+        next_page_number = page_obj.next_page_number()
+    except EmptyPage:
+        next_page_number = paginator.num_pages
+    
+    # get the posts as json data
+    allposts = [post.serialize() for post in page_obj.object_list] 
+    payload = {
+        "page": {
+            "current": page_obj.number,
+            "has_next": page_obj.has_next(),
+            "has_previous": page_obj.has_previous(),
+            "numberOfPages": page_obj.paginator.num_pages,
+            "next_page_number": next_page_number,
+            "previous_page_number": previous_page_number
+        },
+        "allposts": allposts
+    }
+    return JsonResponse(payload,  safe=False)
+
+
+@csrf_exempt
+@login_required
+def add_remove_follower(request, user_id):
+    '''function adds/removes new/a follower in db'''
+
+    # must add follower by post request
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # if user is a follower : unfollow 
+    if Following.objects.filter(user=request.user, follow_id=user_id).exists():
+        Following.objects.get(user=request.user, follow_id=user_id).delete()
+        return JsonResponse({"message": "User no longer a follower."}, status=201)
+
+    # if user is not a follower : follow
+    else:
+        new = Following(user=request.user, follow_id=user_id)
+        new.save()
+        return JsonResponse({"message": "User has new following."}, status=201)
