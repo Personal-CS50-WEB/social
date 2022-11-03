@@ -13,7 +13,7 @@ function fetch_posts (view, num, id=null){
             console.log(posts);
             // send posts in result to paginator function
             page_paginator(posts.page, 'userFollowing');
-            create_element_to_every_post(posts.allposts);
+            create_element_for_every_post(posts.allposts);
         })    
     }
     // if user on profile view
@@ -25,7 +25,7 @@ function fetch_posts (view, num, id=null){
             console.log(posts);
             // send posts in result to paginator function
             page_paginator(posts.page, 'profile', id);
-            create_element_to_every_post(posts.allposts);
+            create_element_for_every_post(posts.allposts);
         })
     }
     // if user on all posts view
@@ -37,7 +37,7 @@ function fetch_posts (view, num, id=null){
             console.log(page);
             // send posts in result to paginator function
             page_paginator(page.page, 'allposts');
-            create_element_to_every_post(page.allposts);
+            create_element_for_every_post(page.allposts);
         })
     }
     return false;
@@ -72,7 +72,7 @@ function page_paginator(page, view, id) {
 }
 
 // function takes all posts in one page and send it to add to dive function then apend every post in all posts div
-function create_element_to_every_post(all){
+function create_element_for_every_post(all){
     all.forEach(post =>{
         var element = add_post_to_div(post);
         document.querySelector('#all-posts').append(element);
