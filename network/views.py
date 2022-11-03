@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import Following, Post, User, Like
+from .models import Following, Post, User
 
 
 def index(request):
@@ -215,3 +215,44 @@ def add_remove_follower(request, user_id):
         new = Following(user=request.user, follow_id=user_id)
         new.save()
         return JsonResponse({"message": "User has new following."}, status=201)
+
+
+@csrf_exempt
+@login_required
+def like(request, post_id):
+    '''function allows users to like/unlike posts'''
+
+    post = Post.objects.get(pk=post_id)
+    # when user like a post
+    if request.method == "POST":
+        post.likes.add(request.user)
+        return JsonResponse({"message": "User liked this post.", "likes": post.likes.count()}, status=201)
+       
+    # when user unlike a post
+    elif request.method == "DELETE":
+        post.likes.remove(request.user)
+        return JsonResponse({"message": "User unliked this post.", "likes": post.likes.count()}, status=201)
+    else:
+        return JsonResponse({"error": "Not a valid request."}, status=400)
+
+
+@csrf_exempt
+@login_required
+def edit_post(request, post_id):
+    ''' function allows users to edit thier posts'''
+
+    # assert that only post owner can edit post
+    post = Post.objects.get(pk=post_id)
+    if post.user_id != request.user.id:
+        return JsonResponse({"error": "Not a valid request."}, status=403)
+    # must edit post by put request
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("text") is not None:
+                post.text = data["text"]              
+                post.save()
+
+        return JsonResponse({"post": post.serialize()}, status=204)
+
+    # if  request is not put
+    return JsonResponse({"error": "PUT request required."}, status=400)
