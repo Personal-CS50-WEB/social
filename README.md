@@ -33,7 +33,8 @@ the user who is authenticated could like/unlike any other post, see his followin
 - urls.py file : containts the routes and apis paths.
 
 ### **UI:**
- ### **html files**: contains the layout for the webpage, login/register form and the single page in this project.
+ ### **html files** : 
+ contains the layout for the webpage, login/register form and the single page in this project.
  ### **static files:**
  - style.css: for the page style.
  - javascript files:
