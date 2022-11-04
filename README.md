@@ -38,8 +38,11 @@ the user who is authenticated could like/unlike any other post, see his followin
  ### **static files:**
  - style.css: for the page style.
  - javascript files:
+ - 
    1.index.js: contains functions that toggle  between dispaly or hide views depending on users actions.
-   2.handle_posts.js: contains functions that calls makes fetch request to the back end to get posts and display each post in element and dispay every 10 posts in a seperate pages 
+   
+   2.handle_posts.js: contains functions that calls makes fetch request to the back end to get posts and display each post in element and dispay every 10 posts in a seperate pages.
+   
    3.features.js : contains functions that calls the required api for every feature such as edit post, follow/unfollow users and like/unlike posts.
 
 
