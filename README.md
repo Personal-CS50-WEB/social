@@ -1,4 +1,4 @@
-# social
+# Social
 ## Description:
 
  A django single app Twitter-like social network website for making posts, view/edit, like/unlike posts, and following users.
@@ -19,7 +19,7 @@
 - Django models
 - Sqlite3
 
-**The project consists of:**:
+**The project consists of:**
 #### **Database layer**:
  Using django models(models.py) this project has three models:
  - User model : Contains user information like id, username, password, email.
