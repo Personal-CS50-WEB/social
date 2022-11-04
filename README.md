@@ -5,8 +5,8 @@
 
 ## Explaining the project:
 - It is a single page application that allows user to register or sign in, once a user is authenticated a page contanting all posts from all users will display with new post section that allows users to write new posts.
-- when users click on different links, different APIs will be called to display the required data such as profile page for a user with information about number of followers the user has, as well as the number of people that the user follows and display all of the posts for that user, in reverse chronological order.
-- the user who is authenticated could like/unlike any other post, see his followings posts and edit his own posts by calling specific API for each action.
+- When users click on different links, different APIs will be called to display the required data such as profile page for a user with information about number of followers the user has, as well as the number of people that the user follows and display all of the posts for that user, in reverse chronological order.
+- The user who is authenticated could like/unlike any other post, see his followings posts and edit his own posts by calling specific API for each action.
 
 ## Technologies used:
 
