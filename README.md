@@ -1,9 +1,7 @@
 # social
 ## Description:
 
- ```
-A django single app  Twitter-like social network website for making posts, view/edit posts, like/unlike posts, and following users.
-```
+ A django single app Twitter-like social network website for making posts, view/edit posts, like/unlike posts, and following users.
 
 ## Explaining the project:
 It is a single page application that allows user to register or sign in, once a user is authenticated a page contanting all posts from all users will display with new post section that allows users to write new posts.
