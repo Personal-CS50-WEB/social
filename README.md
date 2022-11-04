@@ -18,7 +18,29 @@ the user who is authenticated could like/unlike any other post, see his followin
 - html
 - Css
 - javascript
+- django models
 - sqlite3
+
+**The project consists of:**:
+#### **Database layer**:
+ using django models(models.py) this project has three models:
+ - user model : contains user information like id, username, password, email.
+ - post model: contains post information like id,user who wrote the post, the text that post contains, users who liked this post, time created, time edited.
+ - follow model : contains information about every user and his followings.
+
+### **Business Layer:**
+- view.py file: containts the Api used to get/delete/update information from models.py file.
+- urls.py file : containts the routes and apis paths.
+
+### **UI:**
+ ### **html files**: contains the layout for the webpage, login/register form and the single page in this project.
+ ### **static files:**
+ - style.css: for the page style.
+ - javascript files:
+   1.index.js: contains functions that toggle  between dispaly or hide views depending on users actions.
+   2.handle_posts.js: contains functions that calls makes fetch request to the back end to get posts and display each post in element and dispay every 10 posts in a seperate pages 
+   3.features.js : contains functions that calls the required api for every feature such as edit post, follow/unfollow users and like/unlike posts.
+
 
 ## How to launch application
 
