@@ -34,7 +34,7 @@
  ### **Html files** : 
  Contains the layout for the webpage, login/register form and the single page in this project.
  ### **Static files:**
- - Style.css: for the page style.
+ - Style.css: For the page style.
  - Javascript files:
  
    1. index.js: Contains functions that toggle  between dispaly or hide views depending on users actions.
