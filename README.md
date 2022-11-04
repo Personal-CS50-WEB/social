@@ -46,8 +46,8 @@
 
 ## How to launch application
 
-1. pip3 freeze > requirements.txt
-2. Clone the code : https://github.com/Personal-CS50-WEB/social.git
+1. Clone the code : https://github.com/Personal-CS50-WEB/social.git
+2. pip install -r requirements.txt
 3. In terminal, python manage.py makemigrations network to make migrations for the network app.
 4. python manage.py migrate
 5. python manage.py runserver
